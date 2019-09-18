@@ -6,88 +6,73 @@
 """Inicia Mininet"""
 from mininet.net import Mininet
 from mininet.node import Controller
-from mininet.cli import CLI
 from mininet.node import CPULimitedHost
 from mininet.link import TCLink 
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel, info
 
 def myTreeNet():
-
+    
     ListaSwitch = []
     ListaHost = []
 
-    """ Crea una red de arbol con un controlador local y enlaces """
+    """ Crea una red de arbol con un controlador local y links restringidos"""
     net = Mininet( controller=Controller, link=TCLink )
     
     """ Add controlador local """
     net.addController ('c0')
 
     """ Add swtiches """
-
-    print("Anadiendo switches")
     for x in range(0, 7):
-        ListaSwitch.append(net.addSwitch('s'+str(x)))
+	    ListaSwitch.append(net.addSwitch('s'+str(x)))
 
     """ Add hosts """
-    print("Anadiendo hosts")
     for x in range (0, 6):
-        ListaHost.append(net.addHost('h'+str(x+1), ip = '200.31.1.'+str(x+1)))
+	    ListaHost.append(net.addHost('h'+str(x+1), ip = '200.31.1.'+str(x+1)))
 
     """Crea los enlaces"""
-    net.addLink(s1, s0, bw=100, delay='10ms')
-    net.addLink(s2, s0, bw=100, delay='10ms')
-    net.addLink(s3, s1, bw=100, delay='10ms')
-    net.addLink(s4, s1, bw=100, delay='10ms')
-    net.addLink(s5, s2, bw=100, delay='10ms')
-    net.addLink(s6, s2, bw=100, delay='10ms')
-
-    net.addLink(h1a, s3, bw=1000, delay='10ms')
-    net.addLink(h2a, s3, bw=1000, delay='10ms')
-
-    net.addLink(h3b, s4, bw=1000, delay='10ms')
-
-    net.addLink(h4c, s5, bw=1000, delay='10ms')
-
-    net.addLink(h5d, s6, bw=1000, delay='10ms')
-    net.addLink(h6d, s6, bw=1000, delay='10ms')
-
+       #Switch
+    for x in range(0,3):
+	    if x ==  0:
+	        net.addLink(ListaSwitch[x], ListaSwitch[x+1], bw=100, delay='100ms')
+		net.addLink(ListaSwitch[x], ListaSwitch[x+2], bw=100, delay='100ms')
+	    if x == 1:
+		net.addLink(ListaSwitch[x], ListaSwitch[x+2], bw=100, delay='100ms')
+		net.addLink(ListaSwitch[x], ListaSwitch[x+4], bw=100, delay='100ms')
+	    if x == 2:
+		net.addLink(ListaSwitch[x], ListaSwitch[x+2], bw=100, delay='100ms')
+		net.addLink(ListaSwitch[x], ListaSwitch[x+4], bw=100, delay='100ms')
+	
+	#Host      
+    for x in range(0,6):
+	    if x == 0 or x == 1 :
+	        net.addLink(ListaHost[x], ListaSwitch[3], bw=1000, delay='1ms')
+	    if x == 2:
+		net.addLink(ListaHost[x], ListaSwitch[5], bw=1000, delay='1ms')
+	    if x == 3:
+		net.addLink(ListaHost[x], ListaSwitch[2], bw=1000, delay='1ms')
+	    if x == 4 or x == 5:
+		net.addLink(ListaHost[x], ListaSwitch[6], bw=1000, delay='1ms')
+    
     net.start()
-
+    
     dumpNodeConnections(net.hosts)
-
+    
     net.pingAll()
     
+
     """ Prueba entre hosts """
-    h1a, h2a = net.get ('h1a', 'h2a')
-    net.iperf((h1a, h2a))
-
-    h2a, h1a = net.get('h2a', 'h1a')
-    net.iperf((h2a, h1a))
-
-    h2a, h3b = net.get ('h2a', 'h3b') 
-    net.iperf((h2a, h3b))
-
-    h3b, h4c = net.get ('h3b', 'h4c')
-    net.iperf((h3b, h4c))
-
-    h4c, h5d = net.get ('h4c', 'h5d')
-    net.iperf((h4c,h5d))
-
-    h5d, h6d = net.get ('h5d', 'h6d')
-    net.iperf((h5d, h6d))
-
-    h6d, h5d = net.get ('h6d', 'h5d')
-    net.iperf((h6d, h5d))
-
-
-    CLI(net)
+    for x in range (0, 5):
+       net.iperf((ListaHost[x], ListaHost[x+1]))
+       net.iperf((ListaHost[x+1], ListaHost[x]))
     
     net.stop()
 
 if __name__ == '__main__':
     setLogLevel( 'info' )
     myTreeNet()
+
+
 
 
 
