@@ -14,6 +14,9 @@ from mininet.log import setLogLevel, info
 
 def myTreeNet():
 
+    ListaSwitch = []
+    ListaHost = []
+
     """ Crea una red de arbol con un controlador local y enlaces """
     net = Mininet( controller=Controller, link=TCLink )
     
@@ -21,21 +24,15 @@ def myTreeNet():
     net.addController ('c0')
 
     """ Add swtiches """
-    s0 = net.addSwitch('s0')
-    s1 = net.addSwitch('s1')
-    s2 = net.addSwitch('s2')
-    s3 = net.addSwitch('s3')
-    s4 = net.addSwitch('s4')
-    s5 = net.addSwitch('s5')
-    s6 = net.addSwitch('s6')
+
+    print("Anadiendo switches")
+    for x in range(0, 7):
+        ListaSwitch.append(net.addSwitch('s'+str(x)))
 
     """ Add hosts """
-    h1a = net.addHost ('h1a', ip='200.31.1.1')
-    h2a = net.addHost ('h2a', ip='200.31.1.2')
-    h3b = net.addHost ('h3b', ip='200.31.1.3')
-    h4c = net.addHost ('h4c', ip='200.31.1.4')
-    h5d = net.addHost ('h5d', ip='200.31.1.5')
-    h6d = net.addHost ('h6d', ip='200.31.1.6')
+    print("Anadiendo hosts")
+    for x in range (0, 6):
+        ListaHost.append(net.addHost('h'+str(x+1), ip = '200.31.1.'+str(x+1)))
 
     """Crea los enlaces"""
     net.addLink(s1, s0, bw=100, delay='10ms')
